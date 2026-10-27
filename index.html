@@ -54,10 +54,17 @@ code,.code{font-family:'Cascadia Code',Consolas,'SFMono-Regular',monospace;font-
 <!-- 2 -->
 <section class="slide" data-chapter="01 · Direccionamiento" data-short="Las ocho subredes">
 <div class="numline"><div class="circle">01</div><span>Esquema de direccionamiento</span></div><h2>Distribución <span class="accent">de subredes</span></h2><p class="sub">Asignamos un identificador distinto a cada segmento de la empresa.</p>
-<div class="content g2" style="gap:1.2vw">
-<div class="card" style="padding:1.15vw"><table class="t"><thead><tr><th>Subred</th><th>Hosts</th><th>Prefijo IPv6</th></tr></thead><tbody><tr><td>LAN1 · Central</td><td>1000</td><td><code>2001:CAFE:0:1::/64</code></td></tr><tr><td>LAN2 · Planta</td><td>500</td><td><code>2001:CAFE:0:2::/64</code></td></tr><tr><td>LAN3 · Planta</td><td>200</td><td><code>2001:CAFE:0:3::/64</code></td></tr><tr><td>LAN4 · Planta</td><td>280</td><td><code>2001:CAFE:0:4::/64</code></td></tr></tbody></table></div>
-<div class="card" style="padding:1.15vw"><table class="t"><thead><tr><th>Subred</th><th>Hosts</th><th>Prefijo IPv6</th></tr></thead><tbody><tr><td>LAN5 · Sucursal</td><td>100</td><td><code>2001:CAFE:0:5::/64</code></td></tr><tr><td>DMZ · Central</td><td>30</td><td><code>2001:CAFE:0:6::/64</code></td></tr><tr><td>Wi-Fi · Planta</td><td>1100</td><td><code>2001:CAFE:0:7::/64</code></td></tr><tr><td>WAN privada</td><td>Routers</td><td><code>2001:CAFE:0:8::/64</code></td></tr></tbody></table></div>
-</div><div class="callout" style="margin-top:2vh"><strong>Importante:</strong> IPv6 no reemplaza el esquema IPv4. Los dispositivos tendrán ambas pilas de protocolos activas (Dual-Stack) y elegirán IPv4 o IPv6 según la comunicación.</div>
+<style>
+.slide[data-short="Las ocho subredes"] .content>.card{display:flex;flex-direction:column}
+.slide[data-short="Las ocho subredes"] .subnet-table{height:auto;flex:1 1 auto;table-layout:fixed;font-size:clamp(16px,1.25vw,24px)}
+.slide[data-short="Las ocho subredes"] .subnet-table th,.slide[data-short="Las ocho subredes"] .subnet-table td{padding:.8vh 1.4vw;vertical-align:middle}
+.slide[data-short="Las ocho subredes"] .subnet-table code{color:var(--cyan);font-size:1em}
+.slide[data-short="Las ocho subredes"] .subnet-table tbody tr:last-child td{border-bottom:1px solid rgba(82,118,145,.24)}
+.slide[data-short="Las ocho subredes"] .callout{flex-shrink:0}
+</style>
+<div class="content" style="display:flex;min-height:0">
+<div class="card" style="padding:1.15vw;width:100%;min-height:0"><table class="t subnet-table"><colgroup><col style="width:20%"><col style="width:23%"><col style="width:15%"><col style="width:42%"></colgroup><thead><tr><th scope="col">Subred</th><th scope="col">Ubicación</th><th scope="col">Hosts</th><th scope="col">Prefijo IPv6</th></tr></thead><tbody><tr><td>LAN1</td><td>Central</td><td>1000</td><td><code>2001:CAFE:0:1::/64</code></td></tr><tr><td>LAN2</td><td>Planta</td><td>500</td><td><code>2001:CAFE:0:2::/64</code></td></tr><tr><td>LAN3</td><td>Planta</td><td>200</td><td><code>2001:CAFE:0:3::/64</code></td></tr><tr><td>LAN4</td><td>Planta</td><td>280</td><td><code>2001:CAFE:0:4::/64</code></td></tr><tr><td>LAN5</td><td>Sucursal</td><td>100</td><td><code>2001:CAFE:0:5::/64</code></td></tr><tr><td>DMZ</td><td>Central</td><td>30</td><td><code>2001:CAFE:0:6::/64</code></td></tr><tr><td>Wi-Fi</td><td>Planta</td><td>1100</td><td><code>2001:CAFE:0:7::/64</code></td></tr><tr><td>WAN privada</td><td>—</td><td>Routers</td><td><code>2001:CAFE:0:8::/64</code></td></tr></tbody></table></div>
+</div><div class="callout" style="margin-top:max(16px,2vh)"><strong>Importante:</strong> IPv6 no reemplaza el esquema IPv4. Los dispositivos tendrán ambas pilas de protocolos activas (Dual-Stack) y elegirán IPv4 o IPv6 según la comunicación.</div>
 <div class="notes">El prefijo 2001:CAFE:0:8::/64 se utiliza para el medio compartido de la WAN inalámbrica privada en el dibujo. No se define aquí dirección para los enlaces ISP porque el enunciado no proporciona los prefijos de tránsito de cada proveedor.</div></section>
 
 <!-- 3 -->
