@@ -103,67 +103,63 @@ code,.code{font-family:'Cascadia Code',Consolas,'SFMono-Regular',monospace;font-
 </section>
 
 <!-- 7 -->
-<section class="slide" data-chapter="03 · Planta" data-short="R4: configuración SLAAC"><div class="numline"><div class="circle">03</div><span>Configuración de dispositivos de Planta · Router4</span></div><h2>Router4: <span class="accent">configuración SLAAC en Planta</span></h2><p class="sub">Tres interfaces LAN con IPv6 estático en el router y autoconfiguración para los hosts.</p>
+<section class="slide" data-chapter="03 · Planta" data-short="R4: configuración SLAAC"><div class="numline"><div class="circle">03</div><span>Dispositivos de Planta · MikroTik RouterOS v7</span></div><h2>Router4: <span class="accent">configuración SLAAC con RouterOS</span></h2><p class="sub">Configuración propuesta de laboratorio · R4 anuncia únicamente LAN2, LAN3 y LAN4.</p>
 <style>
-.slide[data-short="R4: configuración SLAAC"] .content{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:auto minmax(0,1fr) auto;gap:1.5vh 1.3vw;margin-top:1vh}
-.slide[data-short="R4: configuración SLAAC"] .card{padding:1.2vw;min-height:0}
-.slide[data-short="R4: configuración SLAAC"] pre{font-size:clamp(15px,1.02vw,19px);line-height:1.65}
-.slide[data-short="R4: configuración SLAAC"] .r4-global{grid-column:1/-1;display:flex;align-items:center;gap:24px;padding:.65vw 1.2vw}
-.slide[data-short="R4: configuración SLAAC"] .r4-foot{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:1.3vw}
+.slide[data-short="R4: configuración SLAAC"] .content{display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:1.2vh;margin-top:1vh}
+.slide[data-short="R4: configuración SLAAC"] .card{padding:.7vw 1.2vw;min-height:0}
+.slide[data-short="R4: configuración SLAAC"] pre{font-size:clamp(15px,.98vw,18px);line-height:1.35;white-space:pre-wrap}
+.slide[data-short="R4: configuración SLAAC"] .ros-prep,.slide[data-short="R4: configuración SLAAC"] .ros-foot{display:grid;grid-template-columns:1fr 1fr;gap:1.3vw}
+.slide[data-short="R4: configuración SLAAC"] .callout{font-size:clamp(13px,.91vw,16px);padding:.65vw 1vw;line-height:1.4}
+.slide[data-short="R4: configuración SLAAC"] .ros-prep .cardtitle{font-size:17px;margin-bottom:.4vh}
 </style>
 <div class="content">
-<div class="card dark r4-global"><strong>Configuración global de R4</strong><code>ipv6 unicast-routing</code><span class="muted" style="margin-left:auto;font-size:15px">Interfaces entre ángulos: nombres simbólicos.</span></div>
-<div class="card dark"><div class="cardtitle">R4 · LAN2</div><pre>interface &lt;IF_LAN2&gt;
- <b>ipv6 address 2001:CAFE:0:2::1/64</b>
- ipv6 address FE80::4 link-local
- no ipv6 nd managed-config-flag
- no ipv6 nd other-config-flag
- no ipv6 nd ra suppress
- no shutdown</pre></div>
-<div class="card dark"><div class="cardtitle">R4 · LAN3</div><pre>interface &lt;IF_LAN3&gt;
- <b>ipv6 address 2001:CAFE:0:3::1/64</b>
- ipv6 address FE80::4 link-local
- no ipv6 nd managed-config-flag
- no ipv6 nd other-config-flag
- no ipv6 nd ra suppress
- no shutdown</pre></div>
-<div class="card dark"><div class="cardtitle">R4 · LAN4</div><pre>interface &lt;IF_LAN4&gt;
- <b>ipv6 address 2001:CAFE:0:4::1/64</b>
- ipv6 address FE80::4 link-local
- no ipv6 nd managed-config-flag
- no ipv6 nd other-config-flag
- no ipv6 nd ra suppress
- no shutdown</pre></div>
-<div class="r4-foot"><div class="callout"><strong>RA por defecto en Cisco IOS:</strong> con <code>ipv6 unicast-routing</code>, las interfaces Ethernet con prefijos /64 anuncian RA. Salvo configuración contraria, esos prefijos son on-link y permiten SLAAC.</div><div class="callout amber"><strong>Encabezado RA:</strong> M=0, no se solicita dirección por DHCPv6 Stateful; O=0, no se solicitan parámetros adicionales por DHCPv6.<br><strong>PIO:</strong> A=1 permite SLAAC; L=1 indica que el prefijo pertenece al enlace local.</div></div>
-</div><div class="notes">Sustituir los marcadores IF_LAN2, IF_LAN3 e IF_LAN4 por las interfaces reales de R4 según el cableado. FE80::4 puede reutilizarse en enlaces distintos. Los prefijos conectados /64 se anuncian por defecto sin comandos adicionales de tiempos de vida. M y O pertenecen al encabezado RA; A y L, a Prefix Information Option. R4 mantiene además su conexión a la WAN privada; esta diapositiva configura las LAN para SLAAC.</div></section>
+<div class="card dark ros-prep"><div><div class="cardtitle">1 · Preparar ND en el laboratorio</div><pre>/ipv6 nd print
+/ipv6 nd disable [find where interface=all]</pre></div><div class="muted" style="font-size:clamp(14px,.95vw,17px);line-height:1.45">Revisar y deshabilitar la entrada global <code>all</code> antes de crear los anuncios previstos. Marcadores <code>&lt;IF_…&gt;</code>: usar la interfaz lógica del segmento (bridge o VLAN), no un puerto subordinado.</div></div>
+<div class="card dark"><div class="cardtitle">2 · IPv6, direcciones y anuncios de R4</div><pre><i>/ipv6 settings set disable-ipv6=no forward=yes</i>
+/ipv6 address
+<b>add address=2001:CAFE:0:2::1/64 interface=&lt;IF_LAN2&gt; advertise=yes
+add address=2001:CAFE:0:3::1/64 interface=&lt;IF_LAN3&gt; advertise=yes
+add address=2001:CAFE:0:4::1/64 interface=&lt;IF_LAN4&gt; advertise=yes</b>
+<em>add address=FE80::4/64 interface=&lt;IF_LAN4&gt; advertise=no auto-link-local=no</em>
+/ipv6 nd
+add interface=&lt;IF_LAN2&gt; managed-address-configuration=no other-configuration=no ra-lifetime=30m advertise-dns=no
+add interface=&lt;IF_LAN3&gt; managed-address-configuration=no other-configuration=no ra-lifetime=30m advertise-dns=no
+add interface=&lt;IF_LAN4&gt; managed-address-configuration=no other-configuration=no ra-lifetime=30m advertise-dns=no</pre></div>
+<div class="ros-foot"><div class="callout"><strong>Parámetros:</strong> <code>advertise=yes</code> genera el prefijo dinámico /64; no duplicarlo con una entrada manual. <code>managed-address-configuration=no</code> → M=0; <code>other-configuration=no</code> → O=0. <code>ra-lifetime=30m</code> → 1800 s; <code>advertise-dns=no</code> → sin anuncios DNS, fuera de la consigna.</div><div class="callout amber"><strong>Comprobaciones propuestas · no ejecutadas</strong><pre>/ipv6 address print detail
+/ipv6 nd print detail
+/ipv6 nd prefix print detail</pre>Verificar PIO: <code>autonomous=yes</code> (A=1), <code>on-link=yes</code> (L=1), y origen del RA: <code>FE80::4</code> en LAN4.</div></div></div>
+<div class="notes">Propuesta de laboratorio contrastada con la documentación oficial MikroTik RouterOS v7. No se aplicaron comandos sobre equipos reales. Antes de añadir direcciones o entradas ND, revisar las existentes para evitar duplicados. advertise=yes crea prefijos ND dinámicos; verificar autonomous=yes y on-link=yes en print detail. M/O pertenecen al encabezado RA; A/L, a la PIO. auto-link-local=no en la dirección Link-Local manual sustituye la automática en esa interfaz según la referencia oficial; confirmar su soporte en la versión instalada, DAD y origen efectivo de los RA en laboratorio. FE80::4 en LAN4 es la configuración propuesta que sustenta los ejemplos de las diapositivas 9 y 11, no un resultado observado. La misma Link-Local puede reutilizarse en enlaces distintos; no duplicarla dentro del mismo enlace. R4 conserva su conexión a la WAN privada. Fuentes: https://manual.mikrotik.com/docs/getting-started/networking-fundamentals/ipv6-neighbor-discovery/ y https://manual.mikrotik.com/docs/cli-reference/ipv6/address/.</div></section>
 
 <!-- 8 -->
-<section class="slide" data-chapter="03 · Planta" data-short="R5 y clientes: SLAAC"><div class="numline"><div class="circle">03</div><span>Configuración de dispositivos de Planta · Router5 y clientes</span></div><h2>Router5 y clientes: <span class="accent">completar SLAAC</span></h2><p class="sub">R5 anuncia Wi-Fi; las PC de LAN2, LAN3 y LAN4 y los clientes Wi-Fi utilizan IPv6 automático.</p>
+<section class="slide" data-chapter="03 · Planta" data-short="R5 y clientes: SLAAC"><div class="numline"><div class="circle">03</div><span>Dispositivos de Planta · MikroTik RouterOS v7 y Microsoft Windows</span></div><h2>Router5 y clientes: <span class="accent">configuración en RouterOS y Windows</span></h2><p class="sub">Configuración propuesta · R5 anuncia SLAAC sólo en Wi-Fi; R4 continúa como gateway de LAN2.</p>
 <style>
-.slide[data-short="R5 y clientes: SLAAC"] .content{grid-template-columns:1fr 1fr;margin-top:1vh}
-.slide[data-short="R5 y clientes: SLAAC"] .card{padding:1.2vw;min-height:0}
-.slide[data-short="R5 y clientes: SLAAC"] pre{font-size:clamp(15px,.99vw,18px);line-height:1.4}
-.slide[data-short="R5 y clientes: SLAAC"] .client-list{margin:.6vh 0}
-.slide[data-short="R5 y clientes: SLAAC"] .client-list li{font-size:clamp(15px,1vw,18px);line-height:1.35;padding:.12em 0}
-.slide[data-short="R5 y clientes: SLAAC"] .r5-note{font-size:clamp(13px,.95vw,17px);line-height:1.4;margin-top:1.4vh}
-.slide[data-short="R5 y clientes: SLAAC"] .card:not(.dark) .callout{padding:.7vw 1vw}
-.slide[data-short="R5 y clientes: SLAAC"] pre.pill{white-space:pre-wrap}
+.slide[data-short="R5 y clientes: SLAAC"] h2{font-size:clamp(38px,2.85vw,54px)}
+.slide[data-short="R5 y clientes: SLAAC"] .content{grid-template-columns:1.07fr .93fr;gap:1.3vw;margin-top:1vh}
+.slide[data-short="R5 y clientes: SLAAC"] .card{padding:1vw 1.15vw;min-height:0}
+.slide[data-short="R5 y clientes: SLAAC"] pre{font-size:clamp(14px,.95vw,18px);line-height:1.42;white-space:pre-wrap}
+.slide[data-short="R5 y clientes: SLAAC"] .callout{font-size:clamp(13px,.9vw,16px);line-height:1.4;padding:.65vw .85vw;margin-top:1vh}
+.slide[data-short="R5 y clientes: SLAAC"] .t{font-size:clamp(14px,.92vw,16px)}
+.slide[data-short="R5 y clientes: SLAAC"] .t th,.slide[data-short="R5 y clientes: SLAAC"] .t td{padding:7px 8px}
+.slide[data-short="R5 y clientes: SLAAC"] .ros-small{font-size:clamp(14px,.93vw,16px);line-height:1.4;margin:.8vh 0}
+.slide[data-short="R5 y clientes: SLAAC"] .client-title{margin-top:1.5vh}
 </style>
-<div class="content g2"><div class="card dark"><div class="cardtitle">Router5 · Cisco IOS / IOS XE</div><pre><i>ipv6 unicast-routing</i>
-interface &lt;IF_WIFI&gt;
- <b>ipv6 address 2001:CAFE:0:7::1/64</b>
- ipv6 address FE80::5 link-local
- no ipv6 nd managed-config-flag
- no ipv6 nd other-config-flag
- no ipv6 nd ra suppress
- no shutdown
-!
-interface &lt;IF_LAN2&gt;
- <b>ipv6 address 2001:CAFE:0:2::2/64</b>
- <em>ipv6 nd ra suppress all</em>
- no shutdown</pre><div class="r5-note muted">R5 anuncia el prefijo Wi-Fi, pero no emite Router Advertisements en LAN2, porque R4 es el gateway predeterminado elegido para esa red.</div><div class="r5-note"><strong><code>all</code>:</strong> suprime los RA periódicos y las respuestas a Router Solicitation. <span class="muted">Los nombres entre ángulos son simbólicos.</span></div></div>
-<div class="card"><div class="cardtitle">Clientes de Planta · Windows</div><div class="callout">Configuración del adaptador de red → Propiedades de IPv6 → <strong>Obtener una dirección IPv6 automáticamente.</strong></div><p style="margin:0.8vh 0;color:#bbcfdb">No configurar manualmente una Global Unicast ni un default gateway.</p><div class="cardtitle" style="margin-top:0.8vh">Al recibir el RA, la PC:</div><ul class="client-list"><li>Obtiene el prefijo /64.</li><li>Genera su dirección IPv6 mediante SLAAC.</li><li>Aprende el gateway predeterminado del RA.</li><li>Ejecuta DAD para comprobar que no esté duplicada.</li></ul><div class="cardtitle" style="margin-top:0.8vh">Verificar dirección, gateway y conectividad (LAN4)</div><pre class="pill">ipconfig /all
-ping -6 2001:CAFE:0:4::1</pre><div class="callout" style="margin-top:0.8vh"><strong>Wi-Fi también utiliza SLAAC.</strong> Los clientes no necesitan un servidor DHCPv6 para obtener sus direcciones.</div></div></div><div class="notes">La configuración automática se aplica a las PC de LAN2, LAN3 y LAN4 y a los clientes Wi-Fi. R4 es el gateway de las LAN; R5, de Wi-Fi. R5 permanece conectado a LAN2 para tránsito y no conecta directamente LAN3 ni LAN4. ipv6 nd ra suppress all evita tanto los RA periódicos como los solicitados en LAN2. Las comprobaciones muestran comandos para ejecutar en un equipo real; no representan resultados medidos de la red.</div></section>
+<div class="content g2"><div class="card dark"><div class="cardtitle">Router5 · configuración de laboratorio</div><pre><i>/ipv6 settings set disable-ipv6=no forward=yes</i>
+
+/ipv6 nd print
+/ipv6 nd disable [find where interface=all]
+
+/ipv6 address
+<b>add address=2001:CAFE:0:7::1/64 interface=&lt;IF_WIFI&gt; advertise=yes
+add address=2001:CAFE:0:2::2/64 interface=&lt;IF_LAN2&gt; advertise=no</b>
+<em>add address=FE80::5/64 interface=&lt;IF_WIFI&gt; \
+    advertise=no auto-link-local=no</em>
+
+/ipv6 nd
+add interface=&lt;IF_WIFI&gt; managed-address-configuration=no \
+    other-configuration=no ra-lifetime=30m advertise-dns=no</pre><div class="callout"><strong>LAN2 sin RA:</strong> deshabilitar <code>interface=all</code> si está activa y no crear una entrada ND habilitada para LAN2 en R5. <code>advertise=no</code> evita anunciar ese prefijo, pero no sustituye el control de RA mediante <code>/ipv6 nd</code>.</div><p class="ros-small muted">Marcadores simbólicos: usar el bridge o VLAN correspondiente. FE80::5 es la Link-Local manual propuesta para Wi-Fi; comprobar el origen del RA en laboratorio.</p></div>
+<div class="card"><div class="cardtitle">Parámetros esperados · no medidos</div><table class="t compact"><thead><tr><th>Router</th><th>Segmento</th><th>M</th><th>O</th><th>A</th><th>L</th><th>Router Lifetime</th></tr></thead><tbody><tr><td>R4</td><td>LAN2</td><td>0</td><td>0</td><td class="hi">1</td><td class="hi">1</td><td>1800 s</td></tr><tr><td>R4</td><td>LAN3</td><td>0</td><td>0</td><td class="hi">1</td><td class="hi">1</td><td>1800 s</td></tr><tr><td>R4</td><td>LAN4</td><td>0</td><td>0</td><td class="hi">1</td><td class="hi">1</td><td>1800 s</td></tr><tr><td>R5</td><td>Wi-Fi</td><td>0</td><td>0</td><td class="hi">1</td><td class="hi">1</td><td>1800 s</td></tr><tr><td>R5</td><td>LAN2</td><td>—</td><td>—</td><td>—</td><td>—</td><td>Sin RA</td></tr></tbody></table><p class="ros-small muted">Sin RA significa ausencia de anuncios; Router Lifetime 0 no significa ausencia de RA.</p>
+<div class="cardtitle client-title">Clientes · software: Microsoft Windows</div><div class="callout">Propiedades del adaptador de red → Protocolo de Internet versión 6 (TCP/IPv6) → <strong>Obtener una dirección IPv6 automáticamente.</strong></div><p class="ros-small">No establecer manualmente Global Unicast ni default gateway. PC de LAN2, LAN3, LAN4 y clientes Wi-Fi: SLAAC.</p><div class="cardtitle" style="font-size:17px;margin-top:1vh">Comprobación propuesta · CMD/PowerShell · PC de LAN4</div><pre class="pill">ipconfig /all
+ping -6 2001:CAFE:0:4::1</pre></div></div><div class="notes">R5 conecta LAN2, Wi-Fi e Internet. En esta propuesta su lista ND habilitada sólo incluye Wi-Fi; revisar que no existan otras entradas activas para LAN2 o all. advertise=no no equivale a deshabilitar el emisor RA. Para obtener los valores esperados, revisar las direcciones y ND con los tres comandos de comprobación de la diapositiva 7, también en R5, y capturar los RA en cada enlace. autonomous=yes equivale a A=1; on-link=yes, a L=1. La Link-Local FE80::5 se configura manualmente con auto-link-local=no; verificar compatibilidad y origen efectivo del RA en la versión instalada. La Link-Local FE80::4 corresponde a R4 en LAN4; ninguno de estos valores se presenta como una dirección generada automáticamente ni observada. Fuentes oficiales: https://manual.mikrotik.com/docs/cli-reference/ipv6/nd/ y https://manual.mikrotik.com/docs/cli-reference/ipv6/address/.</div></section>
 
 <!-- 9 -->
 <section class="slide" data-chapter="03 · Planta" data-short="Host en LAN4"><div class="numline"><div class="circle">03</div><span>Secuencia de configuración de un host en LAN4</span></div><h2>De encender el host a <span class="accent">tener IPv6 funcional.</span></h2><p class="sub">La PC crea su Link-Local, aprende prefijo y gateway por RA y forma su Global Unicast mediante SLAAC.</p>
@@ -177,9 +173,9 @@ ping -6 2001:CAFE:0:4::1</pre><div class="callout" style="margin-top:0.8vh"><str
 <path class="connector" marker-end="url(#seq-arrow)" d="M1040 250 H360"/><text x="700" y="235" text-anchor="middle" class="svgsub" style="font-size:20px">03 · RA: M=0, O=0 · PIO: A=1, L=1</text><text x="700" y="281" text-anchor="middle" class="svgsub" style="font-size:17px">2001:CAFE:0:4::/64 · gateway FE80::4</text>
 <rect x="100" y="320" width="700" height="60" rx="9" fill="#162d40" stroke="#3b667d"/><text x="450" y="346" text-anchor="middle" class="svgtitle" style="font-size:20px">04 · Prefijo /64 + identificador de interfaz</text><text x="450" y="368" text-anchor="middle" class="svgsub" style="font-size:17px">La PC forma su dirección Global Unicast</text>
 <rect x="100" y="415" width="700" height="60" rx="9" fill="#162d40" stroke="#3b667d"/><text x="450" y="441" text-anchor="middle" class="svgtitle" style="font-size:20px">05 · DAD de la dirección Global Unicast</text><text x="450" y="463" text-anchor="middle" class="svgsub" style="font-size:17px">Si no se detectan duplicados, puede utilizarla</text>
-<rect x="60" y="550" width="600" height="75" rx="12" class="svgbox lan"/><text x="360" y="578" text-anchor="middle" class="svgsub" style="font-size:17px">Default gateway obtenido por RA</text><text x="360" y="606" text-anchor="middle" class="svgmono" style="font-size:20px">FE80::4</text>
+<rect x="60" y="550" width="600" height="75" rx="12" class="svgbox lan"/><text x="360" y="578" text-anchor="middle" class="svgsub" style="font-size:17px">Gateway por RA · configuración supuesta</text><text x="360" y="606" text-anchor="middle" class="svgmono" style="font-size:20px">FE80::4</text>
 <rect x="740" y="550" width="600" height="75" rx="12" class="svgbox server"/><text x="1040" y="578" text-anchor="middle" class="svgsub" style="font-size:17px">Global Unicast · ejemplo con EUI-64</text><text x="1040" y="606" text-anchor="middle" class="svgmono" style="font-size:18px">2001:CAFE:0:4:250:3EFF:FE12:3456/64</text>
-</svg></div><div class="notes">R4 anuncia el prefijo 2001:CAFE:0:4::/64 y su Link-Local FE80::4 como gateway. La PC genera sus direcciones localmente, sin servidor de asignación ni relay. DAD se realiza sobre Link-Local y Global Unicast. El identificador EUI-64 del ejemplo es 0250:3EFF:FE12:3456, derivado de la MAC ilustrativa; los equipos reales pueden usar identificadores estables opacos o temporales.</div></section>
+</svg></div><div class="notes">El diagrama supone R4 configurado con FE80::4 en LAN4 como en la diapositiva 7; no es un origen RA observado. La configuración y el origen efectivo del RA deben comprobarse en RouterOS. R4 anuncia el prefijo 2001:CAFE:0:4::/64 y el host aprende la Link-Local de origen como gateway. La PC genera sus direcciones localmente, sin servidor de asignación ni relay. DAD se realiza sobre Link-Local y Global Unicast. El identificador EUI-64 del ejemplo es 0250:3EFF:FE12:3456, derivado de la MAC ilustrativa; los equipos reales pueden usar identificadores estables opacos o temporales.</div></section>
 
 <!-- 10 -->
 
@@ -195,7 +191,7 @@ ping -6 2001:CAFE:0:4::1</pre><div class="callout" style="margin-top:0.8vh"><str
 <!-- 13 -->
 <section class="slide" data-chapter="05 · Host LAN4" data-short="IPv6 de PC en LAN4"><div class="sectionmark">05</div><div class="numline"><div class="circle">05</div><span>Direcciones unicast y gateway</span></div><h2>Una PC en <span class="accent">LAN4.</span></h2><p class="sub">Ejemplo SLAAC en el prefijo de LAN4, con R4 como gateway y un identificador EUI-64 ilustrativo.</p>
 <style>.slide[data-short="IPv6 de PC en LAN4"] .card.soft{padding:1.35vw}</style>
-<div class="content g2" style="grid-template-columns:1fr 1fr"><div class="col"><div class="card soft"><div class="cardtitle">Global Unicast</div><div class="code" style="font-size:clamp(18px,2.0vw,31px);margin:1.8vh 0">2001:CAFE:0:4:250:3EFF:FE12:3456</div><div class="muted">/64 · generada localmente mediante SLAAC</div></div><div class="card soft"><div class="cardtitle">Link-Local</div><div class="code" style="font-size:clamp(18px,2.0vw,31px);margin:1.8vh 0">FE80::250:3EFF:FE12:3456</div><div class="muted">Generada localmente (ejemplo EUI-64 modificado)</div></div><div class="card soft"><div class="cardtitle">Default gateway</div><div class="code" style="font-size:clamp(24px,3.1vw,49px);margin:1vh 0">FE80::4</div><div class="muted">Router4 · aprendida mediante RA</div></div></div><div class="col"><div class="card"><div class="cardtitle">Ejemplo EUI-64 modificado</div><div class="muted">MAC del cliente:</div><div class="pill" style="margin:1.4vh 0"><code>00:50:3E:12:34:56</code></div><div style="text-align:center;color:var(--cyan);font-size:26px">↓</div><div class="muted">Se inserta FF:FE y se invierte el bit U/L:</div><div class="pill" style="margin:1.4vh 0"><code>0250:3EFF:FE12:3456</code></div><div class="muted">Link-Local con el mismo identificador del ejemplo:</div><div class="pill" style="margin:1.4vh 0"><code>FE80::250:3EFF:FE12:3456</code></div></div><div class="callout amber">Las direcciones son <strong>ejemplos</strong>: no se conoce la MAC real del host. <code>::1/128</code> es el loopback del equipo y no su dirección de LAN4.</div></div></div><div class="notes">La Global Unicast del ejemplo se forma con el prefijo 2001:CAFE:0:4::/64 y el identificador 0250:3EFF:FE12:3456. Link-Local y Global Unicast pasan DAD antes de usarse. El gateway FE80::4 se aprende por RA. EUI-64 se muestra como ejercicio: en equipos reales los identificadores pueden ser estables opacos o temporales y no necesariamente coinciden entre direcciones.</div></section>
+<div class="content g2" style="grid-template-columns:1fr 1fr"><div class="col"><div class="card soft"><div class="cardtitle">Global Unicast</div><div class="code" style="font-size:clamp(18px,2.0vw,31px);margin:1.8vh 0">2001:CAFE:0:4:250:3EFF:FE12:3456</div><div class="muted">/64 · generada localmente mediante SLAAC</div></div><div class="card soft"><div class="cardtitle">Link-Local</div><div class="code" style="font-size:clamp(18px,2.0vw,31px);margin:1.8vh 0">FE80::250:3EFF:FE12:3456</div><div class="muted">Generada localmente (ejemplo EUI-64 modificado)</div></div><div class="card soft"><div class="cardtitle">Default gateway</div><div class="code" style="font-size:clamp(24px,3.1vw,49px);margin:1vh 0">FE80::4</div><div class="muted">Router4 · aprendida mediante RA</div></div></div><div class="col"><div class="card"><div class="cardtitle">Ejemplo EUI-64 modificado</div><div class="muted">MAC del cliente:</div><div class="pill" style="margin:1.4vh 0"><code>00:50:3E:12:34:56</code></div><div style="text-align:center;color:var(--cyan);font-size:26px">↓</div><div class="muted">Se inserta FF:FE y se invierte el bit U/L:</div><div class="pill" style="margin:1.4vh 0"><code>0250:3EFF:FE12:3456</code></div><div class="muted">Link-Local con el mismo identificador del ejemplo:</div><div class="pill" style="margin:1.4vh 0"><code>FE80::250:3EFF:FE12:3456</code></div></div><div class="callout amber">Las direcciones son <strong>ejemplos</strong>: no se conoce la MAC real del host. El gateway <code>FE80::4</code> supone la configuración propuesta de R4; no fue verificado en RouterOS. <code>::1/128</code> es el loopback del equipo y no su dirección de LAN4.</div></div></div><div class="notes">La Global Unicast del ejemplo se forma con el prefijo 2001:CAFE:0:4::/64 y el identificador 0250:3EFF:FE12:3456. Link-Local y Global Unicast pasan DAD antes de usarse. El gateway FE80::4 se aprende por RA. EUI-64 se muestra como ejercicio: en equipos reales los identificadores pueden ser estables opacos o temporales y no necesariamente coinciden entre direcciones.</div></section>
 
 <!-- 14 -->
 
