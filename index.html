@@ -90,16 +90,16 @@ code,.code{font-family:'Cascadia Code',Consolas,'SFMono-Regular',monospace;font-
 .slide[data-short="Política IPv6 por subred"] .policy-table .static{color:#efd29a;font-weight:750}
 </style>
 <div class="content card policy-card"><table class="t policy-table"><colgroup><col style="width:18%"><col style="width:26%"><col style="width:56%"></colgroup><thead><tr><th scope="col">Subred</th><th scope="col">Método recomendado</th><th scope="col">Motivo</th></tr></thead><tbody>
-<tr><td>LAN1</td><td><span class="stateful">DHCPv6 Stateful</span></td><td>Administración centralizada de equipos corporativos</td></tr>
-<tr><td>LAN2</td><td><span class="stateful">DHCPv6 Stateful</span></td><td>Mismo criterio; además puede alojar servidores DHCPv6</td></tr>
-<tr><td>LAN3</td><td><span class="stateful">DHCPv6 Stateful</span></td><td>Mantener una política consistente en Planta</td></tr>
-<tr><td>LAN4</td><td><span class="stateful">DHCPv6 Stateful</span></td><td>Administración centralizada mediante Relay en R4</td></tr>
+<tr><td>LAN1</td><td><span class="slaac">SLAAC</span></td><td>Autoconfiguración por RA, sin servidor de asignación</td></tr>
+<tr><td>LAN2</td><td><span class="slaac">SLAAC</span></td><td>Configuración uniforme y sencilla en Planta</td></tr>
+<tr><td>LAN3</td><td><span class="slaac">SLAAC</span></td><td>Autoconfiguración mediante anuncios de R4</td></tr>
+<tr><td>LAN4</td><td><span class="slaac">SLAAC</span></td><td>R4 anuncia el prefijo; no requiere Relay Agent</td></tr>
 <tr><td>LAN5</td><td><span class="slaac">SLAAC</span></td><td>Sucursal pequeña; menor dependencia de servidores remotos</td></tr>
 <tr><td>Wi-Fi</td><td><span class="slaac">SLAAC</span></td><td>Compatibilidad con dispositivos móviles y facilidad de conexión</td></tr>
 <tr><td>DMZ</td><td><span class="static">Estático</span></td><td>Direcciones predecibles para servidores</td></tr>
 <tr><td>WAN privada</td><td><span class="static">Estático</span></td><td>Direcciones conocidas para los routers</td></tr>
 </tbody></table></div>
-<div class="notes">La elección se basa en el tipo de red y sus necesidades de administración: DHCPv6 Stateful en las LAN corporativas, SLAAC en LAN5 y Wi-Fi, y direcciones estáticas en DMZ y WAN privada.</div>
+<div class="notes">Todas las LAN y Wi-Fi utilizan SLAAC: los routers anuncian sus prefijos /64 mediante RA y los hosts se autoconfiguran sin servidores DHCPv6. En DMZ, WAN privada e interfaces de infraestructura se mantienen direcciones estáticas.</div>
 </section>
 
 <!-- 7 -->
